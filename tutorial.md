@@ -2,6 +2,23 @@
 
 This tutorial will walk you through integrating Logos.Input into a GLFW project using Silk.NET's C# bindings. By the end you will have a working OpenGL window that responds to keyboard and mouse input through the Logos.Input library.
 
+## Table of Contents
+
+- [Dependencies](#dependencies)
+- [How GLFW Input Works](#how-glfw-input-works)
+- [General Steps to Implementing an Input Backend](#general-steps-to-implementing-an-input-backend)
+    - [Step 1 - Initialize GLFW and Create a Window](#step-1---initialize-glfw-and-create-a-window)
+    - [Step 2 - Create the Input Provider](#step-2---create-the-input-provider)
+    - [Step 3 - Get Listeners](#step-3---get-listeners)
+    - [Step 4 - Subscribe to Events](#step-4---subscribe-to-events)
+    - [Step 5 - Set Up OpenGL](#step-5---set-up-opengl)
+    - [Step 6 - The Game Loop](#step-6---the-game-loop)
+    - [Step 7 - Clean Up](#step-7---clean-up)
+    - [Complete Example](#complete-example)
+- [Going Further with Mappers](#going-further-with-mappers)
+- [Querying Device and Control State](#querying-device-and-control-state)
+- [Important Note on GLFW Callbacks](#important-note-on-glfw-callbacks)
+
 ---
 
 ## Dependencies
@@ -282,63 +299,8 @@ Subscribing directly to listener events is one way to react to input and it work
 
 More information on mappers can be found in the [quickstart.md](https://github.com/COMP-4120-Logos-Input/Logos.Input/blob/main/quickstart.md) file in our Logos.Input repository
 
-### Binding Key Gestures
-
-```csharp
-// Make a KeyboardMapper
-KeyboardMapper keyMapper = new KeyboardMapper();
-
-// Bind Space press and release to the same observer
-// FireControl handles both OnKeyPressed and OnKeyReleased internally
-FireControl fireControl = new FireControl();
-keyMapper.Bind(new KeyGesture(KeyCode.Space, KeyAction.Press), fireControl);
-keyMapper.Bind(new KeyGesture(KeyCode.Space, KeyAction.Release), fireControl);
-
-// Start routing events from the provider to the mapper
-keyMapper.IsEnabled = true;
-```
-
-### Binding Mouse Gestures
-
-```csharp
-MouseMapper mouseMapper = new MouseMapper();
-
-// Fire on left click
-mouseMapper.Bind(
-    new MouseButtonGesture(MouseButton.Left, MouseButtonAction.Press),
-    fireObserver);
-
-// Track cursor position with Any direction
-mouseMapper.Bind(MouseMotionDirection.Any, cursorControl);
-
-// Zoom on scroll
-mouseMapper.Bind(MouseWheelDirection.Up, zoomInObserver);
-mouseMapper.Bind(MouseWheelDirection.Down, zoomOutObserver);
-
-mouseMapper.IsEnabled = true
-```
-
-### Switching Input Contexts
-
-Set `IsEnabled` to `false` to stop a mapper from receiving input, for example when pausing, and `isEnabled` to `true` to restore it:
-
-```csharp
-// Player opens pause menu
-keyMapper.isEnabled = false;
-mouseMapper.isEnabled = false;
-
-pauseMenuMapper.IsEnabled = true;
-
-// Player resumes
-pauseMenuMapper.IsEnabled = false
-
-keyMapper.IsEnabled = true;
-mouseMapper.IsEnabled = true;
-```
-
 ### Writing a Control
-
-`KeyControl<T>` lets you track state that changes in response to input and notify subscribers when it does. Controls are templated meaning you may choose the type of the state. Here is a control that tracks whether a fire button is held using a boolean type:
+Before we use mappers, we must first create a *Control*. `KeyControl<T>` lets you track state that changes in response to input and notify subscribers when it does. Controls are templated meaning you may choose the type of the state. Here is a control that tracks whether a fire button is held using a boolean type:
 
 ```csharp
 public sealed class FireControl : KeyControl<bool>
@@ -371,6 +333,58 @@ fireControl.StateChanged += (_, isFiring) =>
         Console.WriteLine("Stopped firing");
 };
 ```
+
+You now initialize a `KeyboardMapper` and a `KeyControl<T>` object. You may then bind a `KeyGesture` to a control using the input mappers `Bind()` method.
+Note that the `IsEnabled` property of an `IInputMapper` object is set to `false` on initialization.
+
+### Binding Key Gestures
+
+```csharp
+// Make a KeyboardMapper
+KeyboardMapper keyMapper = new KeyboardMapper();
+
+// Bind Space press and release to the same observer
+// FireControl handles both OnKeyPressed and OnKeyReleased internally
+FireControl fireControl = new FireControl();
+keyMapper.Bind(new KeyGesture(KeyCode.Space, KeyAction.Press), fireControl);
+keyMapper.Bind(new KeyGesture(KeyCode.Space, KeyAction.Release), fireControl);
+
+// Start routing events from the provider to the mapper
+keyMapper.IsEnabled = true;
+```
+
+### Binding Mouse Gestures
+
+Binding mouse gestures to a control follow a similar method to key controls.
+
+```csharp
+MouseMapper mouseMapper = new MouseMapper();
+
+// Fire on left click
+mouseMapper.Bind(new MouseButtonGesture(MouseButton.Left, MouseButtonAction.Press), fireObserver);
+
+mouseMapper.IsEnabled = true
+```
+
+### Switching Input Contexts
+
+Set `IsEnabled` to `false` to stop a mapper from receiving input, for example when pausing, and `isEnabled` to `true` to restore it:
+
+```csharp
+// Player opens pause menu
+keyMapper.isEnabled = false;
+mouseMapper.isEnabled = false;
+
+pauseMenuMapper.IsEnabled = true;
+
+// Player resumes
+pauseMenuMapper.IsEnabled = false
+
+keyMapper.IsEnabled = true;
+mouseMapper.IsEnabled = true;
+```
+
+
 
 ---
 

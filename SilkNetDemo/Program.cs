@@ -3,7 +3,7 @@ using System.Numerics;
 using Silk.NET.GLFW;
 using Silk.NET.OpenGL;
 using Logos.Input;
-
+using MouseButton = Logos.Input.MouseButton;
 using Shader = SilkNetDemo.Shader;
 unsafe
 {
@@ -87,9 +87,7 @@ unsafe
     
     // MAKE SURE YOU ENABLE THE MAPPER. ITS DISABLED BY DEFAULT
     keyMapper.IsEnabled = true;
-
-
-
+    
     // Subscribes DIRECTLY to the listener events rather than using a control and maappers. 
     //  This is to demonstrate that you can still use the raw events if you want, and that they work alongside the mappers/controls.
     keyboard.KeyPressed += (_, e) =>
@@ -180,5 +178,4 @@ public sealed class DiscoModeControl : KeyControl<bool>
     {
         State = false;
     }
-    
 }
