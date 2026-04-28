@@ -322,7 +322,7 @@ public sealed class FireControl : KeyControl<bool>
     }
 }
 
-// Subscribe to state changes anywhere in your code
+// You can also subscribe to state changes anywhere in your code
 FireControl fireControl = new FireControl();
 
 fireControl.StateChanged += (_, isFiring) =>
