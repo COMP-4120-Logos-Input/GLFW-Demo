@@ -30,6 +30,8 @@ This tutorial will walk you through integrating Logos.Input into a GLFW project 
 Silk.NET.GLFW
 Silk.NET.OpenGL
 ```
+
+- Since this project is meant to show off Logos.Input, you must also have the Logos.Input binary somewhere on your machine. Then, in your IDE, you must reference the `Logos.Input.dll` file that is built by Logos.Input. Information on building Logos.Input can be found in the main repo, [Logos.Input Repository](https://github.com/COMP-4120-Logos-Input/Logos.Input)
 ---
 
 ## How GLFW Input Works
